@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>SnowBall</title>
+  <!--candle need js library-->
+  <script src="../static/js/highcharts-zh_CN.js"></script>
+  <script src="../static/js/jquery-1.8.3.min.js"></script>
+  <script src="../static/js/highstock.js"></script>
+  <script src="../static/js/canvas-particle.js"></script>
+  <!--
+  粒子效果背景
+  -->
+</head>
+<body>
+<!--
+   页面布局背景
+   header：内容
+     1.logo
+     2.导航栏
+     3.个人中心
+   content：内容
+      分为四部分：
+        第一部分：
+           1.蜡烛图 放在html中  json参数封装
+           2.信息总览  放在vue中
+        第二部分：
+           1.购买key 放在vue中
+           2.出售key
+        第三部分：规则介绍
+           可隐藏div
+        第四部分：交易实时信息
+    footer:底部
+
+-->
+<!--主画布,用于存放所有内容-->
+<div id="main">
+  <!--头部div背景-->
+  <style>
+    *{ margin: 0; padding: 0; }
+    #main{
+      width: 100%;
+      margin:0;
+      padding:0;
+      float: left;
+      font-family: "Microsoft Yahei";
+      color: #cecece;
+    }
+    #header{
+      width: 100%;
+      height: 50px;
+      float: left;
+      margin:0;
+      padding:0;
+    }
+    .logo{
+      width: 20%;
+      float: left;
+      text-align: center;
+    }
+    .nav{
+      width: 40%;
+      float: left;
+      text-align: center;
+      height: 100%;
+    }
+    .nav ul{
+      width: 100%;
+      height: 100%;
+    }
+    .nav ul li{
+      list-style: none;
+      width: 25%;
+      float: left;
+      text-align: center;
+      margin-left: 0px;
+
+    }
+    .nav a {
+      float: left;
+      color: #cecece;
+      text-decoration: none;
+      font-size: 20px;
+      margin-top: 10px;
+    }
+    .nav a:hover {
+      background-color: #555;
+    }
+    .clear {
+      clear:left;
+    }
+    .person{
+      width: 40%;
+      height: 100%;
+
+      text-align: center;
+      float: left;
+
+    }
+    /*个人中心*/
+    nav{height: 100%;width: 100%;margin: 0 auto;}
+    nav ul li{list-style-type:none;float: left;font-size: 20px;}
+    nav ul li a{ text-decoration: none;display: block;width:100%;text-align: center;color:white;font-fimily:微软雅黑;}
+    nav ul li ul li{float: none}
+    nav ul li ul li a{color:black}
+    nav ul li ul{display: none;}
+    nav ul li:hover ul{display: block;}
+    /* 蜡烛图css  */
+    .highcharts-axis-resizer {
+      stroke: #eee;
+    }
+    .highcharts-axis-resizer:hover {
+      stroke: #ccc;
+    }
+    #content{
+      width: 100%;
+      float: left;
+    }
+    .content_account{
+      width: 100%;
+      height: 700px;
+      text-align: center;
+      float: left;
+      margin-top: 30px;
+    }
+    .content_k{
+      width: 60%;
+      height: 400px;
+      float: left;
+      margin-left: 2.5%;
+    }
+    .content_rule{
+      width: 96%;
+      margin-left: 2%;
+      margin-top: 60px;
+      text-align: center;
+    }
+    #content_rule_content{
+      width: 100%;
+      text-align: center;
+    }
+    #footer{
+      width: 100%;
+      height: 50px;
+      margin-top: 30px;
+    }
+
+
+  </style>
+  <div id="header">
+    <!--logo-->
+    <div class="logo">
+      <img src="static/logo.png">
+
+    </div>
+    <!--nav-->
+    <div class="nav">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Quick start</a></li>
+        <li><a href="#">WhiterPaper</a></li>
+        <li><a href="#">Community</a></li>
+      </ul>
+    </div>
+    <!--person
+    <div class="person">
+        <nav>
+            <ul>
+                <li><a>Person</a>
+                    <ul>
+                        <li>person</li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+    -->
+  </div>
+  <!--浮动样式清除-->
+  <div class="clear"></div>
+  <!--主要内容背景-->
+  <div id="content">
+    <!--第一块内容 主背景-->
+    <div class="content_account">
+      <div class="content_k">
+        <div id="container">图表加载中...</div>
+        <script>
+          Highcharts.setOptions({
+            lang: {
+              rangeSelectorZoom: ''
+            }
+          });
+          /*
+          $.getJSON('https://data.jianshukeji.com/stock/history/000001', function (data) {
+              if(data.code !== 1) {
+                  alert('读取股票数据失败！');
+                  return false;
+              }
+              data = data.data;
+              //var scalar = data[scalar];
+              var ohlc = [],
+                  volume = [],
+                  dataLength = data.length,
+                  // set the allowed units for data grouping
+                  groupingUnits = [[
+                      'week',                         // unit name
+                      [1]                             // allowed multiples
+                  ], [
+                      'month',
+                      [1, 2, 3, 4, 6]
+                  ]],
+                  i = 0;
+              for (i; i < dataLength; i += 1) {
+                  ohlc.push([
+                      data[i][0], // the date
+                      data[i][1], // open
+                      data[i][2], // high
+                      data[i][3], // low
+                      data[i][4] // close
+                  ]);
+                  volume.push([
+                      data[i][0], // the date
+                      data[i][5] // the volume
+                  ]);
+                  console.log(data[i])
+              }*/
+          // $.getJSON('http://localhost/json.php', function (data1) {
+          //   if(data1.code !== 1) {
+          //     alert('读取股票数据失败！');
+          //     return false;
+          //   }
+          //   // alert(data.code)
+          //   // alert(data.data.scalar)
+          //   var scalar= data1.data.scalar.split("]");
+          //   var ohlc = [],
+          //     volume = [],
+          //     dataLength = scalar.length,
+          //     // set the allowed units for data grouping
+          //     groupingUnits = [[
+          //       'week',                         // unit name
+          //       [1]                             // allowed multiples
+          //     ], [
+          //       'month',
+          //       [1, 2, 3, 4, 6]
+          //     ]],
+          //     i = 0;
+          //   var data=[];
+          //   for (i; i < dataLength; i += 1) {
+          //     data[i] = scalar[i].split(",");
+          //     ohlc.push([
+          //       parseFloat(data[i][0]), // the date
+          //       parseFloat(data[i][1]), // open
+          //       parseFloat(data[i][2]), // high
+          //       parseFloat(data[i][3]), // low
+          //       parseFloat(data[i][4]) // close
+          //     ]);
+          //     volume.push([
+          //       parseFloat(data[i][0]), // the date
+          //       parseFloat(data[i][5]) // the volume
+          //     ]);
+          //}
+          $.getJSON('https://data.jianshukeji.com/stock/history/000001', function (data) {
+            if(data.code !== 1) {
+              alert('读取股票数据失败！');
+              return false;
+            }
+            data = data.data;
+            var ohlc = [],
+              volume = [],
+              dataLength = data.length,
+              // set the allowed units for data grouping
+              groupingUnits = [[
+                'week',                         // unit name
+                [1]                             // allowed multiples
+              ], [
+                'month',
+                [1, 2, 3, 4, 6]
+              ]],
+              i = 0;
+            for (i; i < dataLength; i += 1) {
+              ohlc.push([
+                data[i][0], // the date
+                data[i][1], // open
+                data[i][2], // high
+                data[i][3], // low
+                data[i][4] // close
+              ]);
+              volume.push([
+                data[i][0], // the date
+                data[i][5] // the volume
+              ]);
+            }
+            // create the chart
+            var chart = Highcharts.stockChart('container', {
+              rangeSelector: {
+                selected: 1,
+                inputDateFormat: '%Y-%m-%d'
+              },
+              chart: {
+                backgroundColor: '#2D2D2D',
+                type: 'line'
+              },
+              title: {
+                text: 'Snow Ball',
+                style: {
+                  color: '#cecece',      //字体颜色
+                  "fontSize": "22px",   //字体大小
+                  fontWeight: 'bold'
+                }
+              },
+              xAxis: {
+                dateTimeLabelFormats: {
+                  millisecond: '%H:%M:%S.%L',
+                  second: '%H:%M:%S',
+                  minute: '%H:%M',
+                  hour: '%H:%M',
+                  day: '%m-%d',
+                  week: '%m-%d',
+                  month: '%y-%m',
+                  year: '%Y'
+                }
+              },
+              tooltip: {
+                split: false,
+                shared: true,
+              },
+              yAxis: [{
+                labels: {
+                  align: 'right',
+                  x: -3
+                },
+                title: {
+                  text: 'key价'
+                },
+                height: '65%',
+                resize: {
+                  enabled: true
+                },
+                lineWidth: 2
+              }, {
+                labels: {
+                  align: 'right',
+                  x: -3
+                },
+                title: {
+                  text: '成交量'
+                },
+                top: '65%',
+                height: '35%',
+                offset: 0,
+                lineWidth: 2
+              }],
+              series: [{
+                type: 'candlestick',
+                name: 'Pyramid',
+                color: 'green',
+                lineColor: 'green',
+                upColor: 'red',
+                upLineColor: 'red',
+                tooltip: {
+                },
+                navigatorOptions: {
+                  color: Highcharts.getOptions().colors[0]
+                },
+                data: ohlc,
+                dataGrouping: {
+                  units: groupingUnits
+                },
+                id: 'sz'
+              },{
+                type: 'column',
+                data: volume,
+                yAxis: 1,
+                dataGrouping: {
+                  units: groupingUnits
+                }
+              }]
+            });
+          });
+        </script>
+      </div>
+      <div id="app">
+
+      </div>
+    </div>
+    <div class="clear"></div>
+    <script>
+      function show () {
+        var cssDisplay=document.getElementById('content_rule_content').style.display;
+        if('none'==cssDisplay){
+          document.getElementById('content_rule_content').style.display='block';
+        }else {
+          document.getElementById('content_rule_content').style.display='none';
+        }
+
+      }
+    </script>
+    <!--规则背景-->
+    <div class="content_rule" onclick="show ()">
+      <h3>How Does It Works？<img src="../static/lock.png" alt="SnowBall Exchange" title="SnowBall Exchange" style="margin:0px 0px 0px 0px;" /></h3>
+      <div id="content_rule_content" style="display: none">
+        <p>
+
+          1.初始总量为0，总量不限，初始价格 P0 = 0.0001 ONG。<br><br>
+
+          2.玩家每购买一个key(应包装为商品)，在当前价格的基础上上升一个单位(q)，key凭空产生。<br><br>
+
+          3.玩家每卖出一个key,在当前价格的基础上下降一个单位(q)，key直接消失。<br><br>
+
+          4.每次交易( 交易额度 = T )行为发生时，抽取交易总额的一部分分给所有key的持有者或邀请人(如果有的话)，具体细节参考第五条。(这样设计的目的是：吸引玩家早期入场 越早越好；吸引玩家邀请别人或接受别人的邀请)<br><br>
+
+          5.邀请即可得referralFee，referral共有三级。<br>
+
+          5.1.<br>
+
+          A_1作为未被任何人邀请加入游戏的参与者，其交易(买入或卖出)时的交易额 T(A) 的 80% 会用作实际交易，19%会用作分给目前所有的key持有者，1%分给团队。<br>
+
+          5.2.<br>
+
+          B级用户交易(买入或卖出)时，T(B)(B级的交易额) 中的 86% 用作实际交易，10% 用作分给所有key持有者，4% 用作分给邀请者。<br>
+
+          5.3.<br>
+
+          C级用户交易时，如T(C12) 中的 86% 会用作实际交易，9%分给所有key持有者，1%分给A级邀请者(A_1)，4%分给直接邀请人(B11)。<br>
+
+          5.4.<br>
+
+          D级用户交易时，如T(D21) 中的 86% 会用作实际交易，9% 分给所有key持有者，1%分给B级邀请者(B12)，4%分给直接邀请人(C22)。<br><br>
+        </p>
+      </div>
+    </div>
+    <!--交易记录-->
+    <div class="content_tas">
+      <table style="width: 100%;" border="1px">
+        <tr>
+          <td>时间</td>
+          <td>价格</td>
+          <td>类型</td>
+          <td>数量</td>
+          <td>金额</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+        <tr>
+          <td>2018-3-1</td>
+          <td>10</td>
+          <td>100000</td>
+          <td>100000</td>
+          <td>100000</td>
+        </tr>
+      </table>
+
+    </div>
+  </div>
+
+</div>
+<!--浮动样式清除-->
+<div class="clear"></div>
+<!--底部背景-->
+<div id="footer">
+  <span style="">2018</span>
+</div>
+</div>
+<!-- built files will be auto injected -->
+</body>
+</html>
+<style>
+  body {
+    margin:0;
+    padding:0;
+    background-color: #2D2D2D;
+    flood-color: #cecece;
+  }
+</style>
