@@ -11,15 +11,8 @@ A box came from TC SHENZHEN Hackathon 2018. This box is contributed by [nycidal]
 
 ## 2. 快速上手
 
-合约部署：
-
-- 使用smartx编译部署合约，并记录合约地址。
-- 进入项目中的 `HelloWorld.vue`，修改代码中的合约地址为自己部署的合约地址。
-- 运行项目
-
-```shell
-npm install
-npm run devauto
-```
-
+- 合约部署：使用smartx编译部署合约，并记录合约地址。
+- 修改合约地址：进入项目中的 `HelloWorld.vue`，修改代码中的合约地址为自己部署的合约地址。
+- 安装依赖：`npm install`。
+- 运行项目：`npm run dev`。
 - 在浏览器中打开 `localhost:8080`，查看项目。
