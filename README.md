@@ -1,6 +1,6 @@
 # snow-ball-box
 
-A box from TC SHENZHEN Hackathon 2018. This box is contributed by [nycidal](https://github.com/nycjdal).
+A box came from TC SHENZHEN Hackathon 2018. This box is contributed by [nycidal](https://github.com/nycjdal).
 
 - [1. 简介](#1-简介)
 - [2. 快速上手](#2-快速上手)
