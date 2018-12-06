@@ -2,11 +2,14 @@
 
 A box from TC SHENZHEN Hackathon 2018. This box is contributed by [nycidal](https://github.com/nycjdal).
 
-## 简介
+- [1. 简介](#1-简介)
+- [2. 快速上手](#2-快速上手)
+
+## 1. 简介
 
 一个基于ontology的交易平台，同时也是一个类似Fom3D的游戏。在原来的基础上增加了完善的邀请制度，增加游戏的可玩性、以及自增长性，为平台自动引入流量。
 
-## 快速上手
+## 2. 快速上手
 
 合约部署：
 
